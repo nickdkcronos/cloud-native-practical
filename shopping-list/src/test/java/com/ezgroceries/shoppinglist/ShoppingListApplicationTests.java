@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(JUnitPlatform.class)
@@ -107,4 +107,40 @@ public class ShoppingListApplicationTests {
                 .andExpect(jsonPath("$[1].ingredients[3]").value("Salt"))
                 .andExpect(jsonPath("$[1].ingredients[4]").value("Blue Curacao"));
     }
+
+    @Test
+    public void createShoppingList() throws Exception {
+        this.mockMvc
+                .perform(
+                        post("/shopping-lists")
+                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .content("{\"name\":\"Stephanie's Birthday\"}")
+                                .accept(MediaType.parseMediaType("application/json"))
+                )
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andExpect(jsonPath("$.shoppingListId").value("eb18bb7c-61f3-4c9f-981c-55b1b8ee8915"))
+                .andExpect(jsonPath("$.name").value("Stephanie's Birthday"));
+    }
+
+    @Test
+    public void addToShoppingList() throws Exception {
+        String cocktailId1 = "23b3d85a-3928-41c0-a533-6538a71e17c4";
+        String cocktailId2 = "d615ec78-fe93-467b-8d26-5d26d8eab073";
+        this.mockMvc
+                .perform(
+                        post("/shopping-lists/97c8e5bd-5353-426e-b57b-69eb2260ace3/cocktails")
+                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .content("[{\"cocktailId\": \"" + cocktailId1 + "\"},{\"cocktailId\":\"" + cocktailId2 + "\"}]")
+                                .accept(MediaType.parseMediaType("application/json"))
+                )
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].cocktailId").value(cocktailId1))
+                .andExpect(jsonPath("$[1].cocktailId").value(cocktailId2));
+    }
+
+
 }
