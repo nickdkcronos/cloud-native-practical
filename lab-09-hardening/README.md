@@ -30,6 +30,7 @@ Add these to application.properties:
 
 ```
 # feign config
+feign.hystrix.enabled=true
 feign.client.config.default.connect-timeout=3000
 feign.client.config.default.read-timeout=3000
 feign.client.config.default.logger-level=basic
